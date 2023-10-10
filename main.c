@@ -57,7 +57,7 @@ void Init_ADC()
 	RST_CLK_PCLKcmd(RST_CLK_PCLK_PORTD, ENABLE);
 	PORT_InitTypeDef PORT_InitStruct;
 	PORT_InitStruct.PORT_SPEED = PORT_SPEED_MAXFAST;
-	PORT_InitStruct.PORT_FUNC = PORT_FUNC_PORT;   //Нужно ли(не включит ли цифровой режим????7)
+	//PORT_InitStruct.PORT_FUNC = PORT_FUNC_PORT;   //Нужно ли(не включит ли цифровой режим????7)
 	PORT_InitStruct.PORT_MODE = PORT_MODE_ANALOG;
 	PORT_InitStruct.PORT_OE = PORT_OE_IN;
 	PORT_InitStruct.PORT_Pin = PORT_Pin_7;                
@@ -65,6 +65,7 @@ void Init_ADC()
 	PORT_InitStruct.PORT_PULL_DOWN = PORT_PULL_DOWN_OFF;
 	PORT_Init(MDR_PORTD, &PORT_InitStruct);
 	
+	RST_CLK_PCLKcmd(RST_CLK_PCLK_ADC, ENABLE);
 	ADC_InitTypeDef ADC_InitStruct;
 	ADC_InitStruct.ADC_SynchronousMode = ADC_SyncMode_Independent;
 	ADC_InitStruct.ADC_StartDelay = 0;
@@ -98,31 +99,40 @@ void setLEDs(uint32_t result) {
     // Проверить значение переменной result и включить светодиоды соответственно
 		result /= 455;
 		OFF1; OFF2; OFF3; OFF4; OFF5; OFF6; OFF7; OFF8;
+		//ON1; ON2; ON3; ON4; ON5; ON6; ON7; ON8;
     switch(result)
 		{
-			case 8: ON1; ON2; ON3; ON4; ON5; ON6; ON7; ON8;
-			case 7: ON1; ON2; ON3; ON4; ON5; ON6; ON7;
-			case 6: ON1; ON2; ON3; ON4; ON5; ON6;
-			case 5: ON1; ON2; ON3; ON4; ON5;
-			case 4: ON1; ON2; ON3; ON4;
-			case 3: ON1; ON2; ON3;
-			case 2: ON1; ON2;
-			case 1: ON1;
+			///case 8: ON1; ON2; ON3; ON4; ON5; ON6; ON7; ON8;
+			case 7: ON6;break;
+			case 6: ON6; ON5;break;
+			case 5: ON6; ON5; ON4;break;
+			case 4: ON6; ON5; ON4; ON3;break;
+			case 3: ON6; ON5; ON4; ON3; ON2;break;
+			case 2: ON6; ON5; ON4; ON3; ON2;ON1;break;
+			case 1: ON6; ON5; ON4; ON3; ON2;ON1;ON8;break;
+			case 0: ON6; ON5; ON4; ON3; ON2;ON1;ON8;ON7; break;
+		
+			
 		}
+	
 }
 
 int main(void)
 {
+	 
 	Init_LED();
 	Init_ADC();
 	uint32_t data;
-	ADC1_Start();
+	//ON1; ON2; ON3; ON4; ON5; ON6; ON7; ON8;
+	//ADC1_Start();
 	while(1){
-		if (ADC_GetFlagStatus(ADC1_FLAG_END_OF_CONVERSION))
-			{
-				data = ADC1_GetResult() & 0x0FFF;
+		ADC1_Start();
+	while(!ADC_GetFlagStatus(ADC1_FLAG_END_OF_CONVERSION))
+			{}
+				data = (MDR_ADC -> ADC1_RESULT) & 0x0FFF;
 				setLEDs(data);
-			}
+				//ON1; ON2; ON3; ON4;
+			
 			
 	}
 }
