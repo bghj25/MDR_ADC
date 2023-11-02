@@ -3,7 +3,7 @@
 #include "MDR32F9Qx_rst_clk.h"          // Keil::Drivers:RST_CLK
 #include "MDR32F9Qx_port.h"             // Keil::Drivers:PORT
 #include "MDR32F9Qx_config.h"           // Keil::Device:Startup
-
+#include "filters.h"
 
 #define ON1  PORT_SetBits (MDR_PORTA, PORT_Pin_7)
 #define OFF1 PORT_ResetBits (MDR_PORTA, PORT_Pin_7)
@@ -103,15 +103,15 @@ void setLEDs(uint32_t result) {
     switch(result)
 		{
 			///case 8: ON1; ON2; ON3; ON4; ON5; ON6; ON7; ON8;
-			case 7: ON6;break;
-			case 6: ON6; ON5;break;
-			case 5: ON6; ON5; ON4;break;
+			case 1: ON6;break;
+			case 2: ON6; ON5;break;
+			case 3: ON6; ON5; ON4;break;
 			case 4: ON6; ON5; ON4; ON3;break;
-			case 3: ON6; ON5; ON4; ON3; ON2;break;
-			case 2: ON6; ON5; ON4; ON3; ON2;ON1;break;
-			case 1: ON6; ON5; ON4; ON3; ON2;ON1;ON8;break;
-			case 0: ON6; ON5; ON4; ON3; ON2;ON1;ON8;ON7; break;
-		
+			case 5: ON6; ON5; ON4; ON3; ON2;break;
+			case 6: ON6; ON5; ON4; ON3; ON2;ON1;break;
+			case 7: ON6; ON5; ON4; ON3; ON2;ON1;ON8;break;
+			case 8: ON6; ON5; ON4; ON3; ON2;ON1;ON8;ON7; break;
+			case 9: ON6; ON5; ON4; ON3; ON2;ON1;ON8;ON7; break;
 			
 		}
 	
@@ -129,7 +129,7 @@ int main(void)
 		ADC1_Start();
 	while(!ADC_GetFlagStatus(ADC1_FLAG_END_OF_CONVERSION))
 			{}
-				data = (MDR_ADC -> ADC1_RESULT) & 0x0FFF;
+				data = (uint32_t)movavf(((MDR_ADC -> ADC1_RESULT) & 0x0FFF), 5);
 				setLEDs(data);
 				//ON1; ON2; ON3; ON4;
 			
